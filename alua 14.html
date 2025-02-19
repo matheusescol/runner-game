@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Runner Game</title>
+    <style>
+        canvas {
+            background: blue;
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        //Jogador
+    const Player = {
+        x: 50,
+        y: 50,
+        width: 30,
+        heigth: 30,
+        color: "red"
+        velocityY: 0,
+        gravity: 0.5,
+        jumpPower: -10,
+        isJumping: false
+    };
+
+    //Obstaculos
+    const obstacles = [];
+    let frameCount = 0;
+    let gameOver = false;
+
+    function drawPlayer() {
+        ctx.fillStyle = "black";
+        obstacles.fillRect(player.x, player.y, player.width, player.heigth);
+    }
+
+        function drawObstacles() {
+            ctx.fillStyle = "black";
+            obstacles.forEach(obstacles => {
+                ctx.fillRect(obstacles.x, obstacles.y, obstacles.width, obstacles.heigth);
+            })
+        }
+
+        function updateObstacle() {
+            if (frameCount % 100 === 0) {
+                obstacles.push({ x: canvas.width, y: 320, width: 20, heigth: 50, speed: 4});
+            }
+
+            function applyPhysics() {
+                player.velocityY += player.gravity;
+                player.y += player.velocityY;
+                if (player.y >= 300) {
+                    player.y = 300;
+                    player.isJumping = false;
+                }
+            }
+
+            function checkCollisions() {
+                obstacles.forEach(obstacle => {
+                    if (player.x < obstacle.x + obstacle.width &&
+                        player.x + player.width > obstacle.x &&
+                        player.y < obstacle.y + obstacle.heigth &&
+                        player.y + player.heigth > obstacle.y) {
+                        gameOver = true;
+                    }
+                });
+            }
+
+            function gameLoop() {
+                if (gameOver) {
+                    ctx.fillStyle = "black";
+                    ctx.font = "30px Arial";
+                    ctx.fillText("Game Over", canvas.width / 2 - 70, canvas.heigth / 2);
+                    return;
+                }
+
+                ctx.clearRect(0, 0, canvas.width, canvas.heigth);
+                drawPlayer();
+                drawObstacles();
+                applyPhysics();
+                updateObstacle();
+                checkCollisions();
+                frameCount++;
+                requestAnimationFrame(gameLoop);
+            }
+
+            window.addEventListener("keydown", function (event) {
+                if (event.code === "Space" && !player.isJumping) {
+                    player.velocityY = player.jumpPower;
+                    player.isJumping = true;
+                }
+            });
+
+            gameLoop();
+        }
+    </script>
+</body>
+</html>
